@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="./reset.css">
+  <style>
+    html,body {background-color: #fafafa}
+    .df {
+      display: flex;
+    }
+    .tc {
+      text-align: center
+    }
+    .list {
+      display: flex;
+      flex-flow: row wrap;
+      margin: 20px;
+    }
+    .list-item {
+      overflow: hidden;
+      display: block;
+      border-radius: 3px;
+      line-height: 40px;
+      color:rgba(0,0,0,.87);
+      border: 1px solid rgba(0,0,0,.12);
+      width: 150px;
+      padding: 0 12px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      color: rgba(0,0,0,.87);
+      font-size: 14px
+    }
+    .list-item.reset {
+      margin:0;
+    }
+    .list-item:hover {
+      color: rgba(0,0,0,.87);
+      background-color: #edfaff;
+    }
+    h3 {padding-left: 10px;}
+  </style>
+</head>
+<body>
+  <h2 class="tc">name</h2>
+  <div id='viewHistory' class="df" style="padding-left: 10px;align-items: center"></div>
+  <h3>连载</h3>
+  <ul id='chapterList' class="list">
+    暂无
+  </ul>
+  <h3>短篇</h3>
+  <ul id='short' class="list">
+    暂无
+  </ul>
+  <h3>单行本</h3>
+  <ul id='single' class="list">
+    暂无
+  </ul>
+  <h3>附录</h3>
+  <ul id='appendix' class="list">
+    暂无
+  </ul>
+
+  <script>
+    const comicName = 'demo'
+
+    function combineStr(data,type='serial') {
+      const dataLen = data.length;
+      let htmStr = '';
+      for (let index = 1; index <= dataLen; index++) {
+        const ele = data[index-1]
+        showText = ele.name
+        let liItem = `<li><a class="list-item" title=${showText} href='./detail.html?type=${type}&chapter=${index}'>${showText}</a></li>`;
+        htmStr = htmStr + liItem;
+      }
+      return htmStr
+    }
+    // mode 为 2 时会是另外一种形式
+    function getChapterList(mode) {
+      fetch(`../comic/${comicName}/chapter.json`).then((res) => {
+        return res.json();
+      }).then(function(data) {
+          const serialList = data.serial || []
+          const serialEleStr = combineStr(serialList,'serial')
+          serialEleStr && (document.querySelector('#chapterList').innerHTML = serialEleStr)
+          const shortList = data.short || []
+          const shortEleStr = combineStr(shortList,'short')
+          shortEleStr && (document.querySelector('#short').innerHTML = shortEleStr)
+          const singleList = data.single || []
+          const singleEleStr = combineStr(singleList,'single')
+          singleEleStr && (document.querySelector('#single').innerHTML = singleEleStr)
+          const appendixList = data.appendix || []
+          const appendixEleStr = combineStr(appendixList,'appendix')
+          appendixEleStr && (document.querySelector('#appendix').innerHTML = appendixEleStr)
+      });
+    }
+
+    function init() {
+      const viewHistory = localStorage.getItem(comicName) || 'type=serial&chapter=1';
+      const typeEndIndex = viewHistory.indexOf('&')
+      const numEndIndex = viewHistory.lastIndexOf('=')
+      const showText = viewHistory.substring(5,typeEndIndex) + '-'+viewHistory.substring(numEndIndex+1)
+      document.querySelector('#viewHistory').innerHTML = `<div>上次看到:</div> <a class="list-item reset" href='./detail.html?${viewHistory}'>${showText}</a>`;
+      getChapterList()
+
+    }
+
+    init();
+  </script>
+</body>
+</html>
