@@ -84,11 +84,11 @@
     <div class="trigger-tool" id="triggerTool"></div>
   </div>
   <script>
-    let comicName = 'demo'
+    let comicName = 'jojo6'
     const comicOnlyName = comicName
     const comicType = getQueryStringArgs('type');
     comicName = `${comicName}/${comicType}`
-    const prefix = `../comic/${comicName}`
+    const prefix = `../../static/${comicName}`
     const curNum = document.querySelector('#curNum');
     const container = document.querySelector('#imgList');
     const chapter = getQueryStringArgs('chapter');
@@ -234,7 +234,7 @@
       chapterNum.innerHTML = chapter
       curNum.innerHTML = imageNum
 
-      fetch(`../comic/${comicName}/${chapter}/images.json`).then((res) => {
+      fetch(`../../static/${comicName}/${chapter}/images.json`).then((res) => {
         return res.json();
       }).then(function(data) {
         totalImages = data.list?data.list:data;

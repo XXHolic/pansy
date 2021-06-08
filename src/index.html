@@ -64,7 +64,7 @@
   </ul>
 
   <script>
-    const comicName = 'demo'
+    const comicName = 'jojo6'
 
     function combineStr(data,type='serial') {
       const dataLen = data.length;
@@ -79,7 +79,7 @@
     }
     // mode 为 2 时会是另外一种形式
     function getChapterList(mode) {
-      fetch(`../comic/${comicName}/chapter.json`).then((res) => {
+      fetch(`../../static/${comicName}/chapter.json`).then((res) => {
         return res.json();
       }).then(function(data) {
           const serialList = data.serial || []
