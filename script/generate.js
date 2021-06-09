@@ -9,9 +9,10 @@ const {
   removeRepeat,
 } = require('./utils')
 const {sortChapterLink} = require('./helper')
-const comicMark = 'jojo6'
+const comicMark = 'jojo8'
 const baseRoot = `../../static/${comicMark}/`
 const chapterFile = baseRoot + 'chapter.json' // 包含总的信息，也方便获取解析
+const listFile = '../../static/list.json' // 所有漫画名称信息
 const defaultPrefix = 'https://github.com/XXHolic/demo-images/' // 给的假定的图片前缀，目前无其它用处
 const imagesJsonFileName = 'images.json'
 
@@ -81,6 +82,32 @@ function readDir(dir) {
   return fileArr
 }
 
+// 只读文件，不读文件夹
+function readFileName(dir) {
+  var exist = fs.existsSync(dir);
+  // console.log(dir)
+  // 排除不需要遍历的文件夹或文件
+  var excludeDir = /poster/;
+  if (!exist) {
+    console.error("目录路径不存在");
+    return;
+  }
+  var pa = fs.readdirSync(dir);
+  // console.log(pa)
+
+  let fileArr = []
+  for (let index = 0; index < pa.length; index++) {
+    let file = pa[index];
+    var pathName = path.join(dir, file);
+    var info = fs.statSync(pathName);
+    if (!info.isDirectory() && excludeDir.test(file)) {
+      const name = path.basename(pathName)
+      fileArr.push(name);
+    }
+  }
+  return fileArr
+}
+
 function generateChapter() {
   let fileData = readJsonFile(chapterFile,{})
   let directoryArr = readDir(dealPath);
@@ -130,5 +157,30 @@ function generateImages() {
 
 }
 
+//生成所有漫画名称的json
+function generateComicList() {
+  const allPath = readDir('../../static')
+  let comicNameArr = []
+  const len = allPath.length
+  console.log(allPath)
+  for (let index = 0; index < len; index++) {
+    const name = allPath[index];
+    const pathStr = `../../static/${name}`
+    const posterFile = readFileName(pathStr)
+    const poster = posterFile[0]
+    // const strSplit = str.split(path.sep)
+    comicNameArr.push({
+      name:name,
+      poster: `${pathStr}/${poster}`
+    })
+  }
+  let obj = {
+    list: comicNameArr
+  }
+  writeLocalFile(listFile,JSON.stringify(obj))
+}
+
 // generateChapter()
-generateImages()
+// generateImages()
+// generateComicList()
+

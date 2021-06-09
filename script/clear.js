@@ -2,7 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 // 有 4 个值 serial short single appendix
-var dealPath = '../../static/jojo6/single'
+var dealPath = '../../static/jojo8/single'
 var dealFile = [] // 测试 需要重命名的文件夹
 // var dealFile = [11,12,13,14,15,16,17,18,19,20,21,22,23] // 需要重命名的文件夹
 var fileArr = []; // 存储目标文件路径

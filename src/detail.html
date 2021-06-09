@@ -84,7 +84,7 @@
     <div class="trigger-tool" id="triggerTool"></div>
   </div>
   <script>
-    let comicName = 'jojo6'
+    let comicName = getQueryStringArgs('name')
     const comicOnlyName = comicName
     const comicType = getQueryStringArgs('type');
     comicName = `${comicName}/${comicType}`
@@ -192,7 +192,7 @@
       })
       const comicIndex = document.querySelector('#comicIndex');
       comicIndex.addEventListener('click',function(){
-        window.location.href = `./index.html`
+        window.location.href = `./comic.html?name=${comicOnlyName}`
       })
 
       const nextChapter = document.querySelector('#nextChapter');
