@@ -79,6 +79,15 @@ function readJsonFile(path,init=[]) {
   return init
 }
 
+function readFileText(path,init='') {
+  if (fs.existsSync(path)) {
+    const content = fs.readFileSync(path)
+    return content.toString()
+  }
+
+  return init
+}
+
 function removeRepeat(data) {
   return Array.from(new Set(data))
 }
@@ -108,4 +117,5 @@ module.exports = {
   readJsonFile,
   removeRepeat,
   regMatch,
+  readFileText,
 }

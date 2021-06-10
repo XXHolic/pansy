@@ -610,6 +610,16 @@ const globalExpand = (type) => {
 
 }
 
+// 处理 md 文件内文字
+const getMdText = (text) => {
+  let validText = ''
+  const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
+  const plainText = text.replace(pattern,'')
+  const matchResult = plainText.match(/第+.*?回/g)
+  validText = matchResult[0]
+
+  return validText
+}
 
 module.exports = {
   getChapterContainerReg,
@@ -622,4 +632,5 @@ module.exports = {
   getChapterImageData,
   getImageType,
   getImageHeader,
+  getMdText,
 }
