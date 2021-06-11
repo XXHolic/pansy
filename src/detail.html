@@ -36,9 +36,9 @@
     }
     .trigger-tool {
       position: fixed;
-      top: 0;
+      top: 25%;
       left: 0;
-      bottom: 0;
+      bottom: 25%;
       width: 50%;
       z-index: 50;
     }
@@ -64,6 +64,15 @@
       text-align: center;
       background-color: rgba(0, 0, 0, 1);
     }
+    .bottom-tool-visible {
+      display: flex;
+      height: 100px;
+      justify-content: center;
+      align-items: center;
+    }
+    .index-visible {
+      margin: 0 10px;
+    }
   </style>
 </head>
 <body>
@@ -73,7 +82,13 @@
       <input id="jumpNum">
       <button id='jump'>跳转</button>
     </div>
+
     <div id='imgList' class="img-container">
+    </div>
+    <div class="bottom-tool-visible">
+      <button id='preChapterVisible'>上一话</button>
+      <button id='comicIndexVisible' class="index-visible">目录</button>
+      <button id='nextChapterVisible'>下一话</button>
     </div>
     <div class="chapter-tip">chapter <span id="chapterNum">0</span> <span id="curNum">0</span>/<span id="allNum">0</span></div>
     <div class="bottom-tool" id='bottomTool'>
@@ -133,14 +148,14 @@
     }
 
     function createImage(numArgs) {
-      const imageNum = localStorage.getItem('imageNum');
+      const imageNum = localStorage.getItem(`${comicName}/num`);
       let num = imageNum ? imageNum : 1;
       if (num > totalImages.length) {
         return;
       }
       if (numArgs) {
         num = numArgs
-        localStorage.setItem('imageNum', numArgs);
+        localStorage.setItem(`${comicName}/num`, numArgs);
       }
       const imgWrap = document.createElement('div')
       imgWrap.setAttribute('class','wrap-img')
@@ -167,10 +182,10 @@
       imgEle.onload = function() {
         imgEle.setAttribute('data-loaded',1)
         const newNum = Number(num)+1
-        const imageNumAgain = localStorage.getItem('imageNum');
+        const imageNumAgain = localStorage.getItem(`${comicName}/num`);
         // 加载图片顺序可能不一致，只记录最大的
         if (newNum > imageNumAgain) {
-          localStorage.setItem('imageNum', newNum);
+          localStorage.setItem(`${comicName}/num`, newNum);
         }
         curNum.innerHTML = num
         const img = createImage()
@@ -194,12 +209,32 @@
       comicIndex.addEventListener('click',function(){
         window.location.href = `./comic.html?name=${comicOnlyName}`
       })
+      const comicIndexVisible = document.querySelector('#comicIndexVisible');
+      comicIndexVisible.addEventListener('click',function(){
+        window.location.href = `./comic.html?name=${comicOnlyName}`
+      })
 
       const nextChapter = document.querySelector('#nextChapter');
       nextChapter.addEventListener('click',function(){
         const chapter = getQueryStringArgs('chapter');
         const nextNum = Number(chapter) + 1;
-        window.location.href = `./detail.html?type=${comicType}&chapter=${nextNum}`
+        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}`
+      })
+      const nextChapterVisible = document.querySelector('#nextChapterVisible');
+      nextChapterVisible.addEventListener('click',function(){
+        const chapter = getQueryStringArgs('chapter');
+        const nextNum = Number(chapter) + 1;
+        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}`
+      })
+      const preChapterVisible = document.querySelector('#preChapterVisible');
+      preChapterVisible.addEventListener('click',function(){
+        const chapter = getQueryStringArgs('chapter');
+        const preNum = Number(chapter) -1;
+        if (preNum<1) {
+          alert('无前一话')
+          return;
+        }
+        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${preNum}`
       })
 
       const jump = document.querySelector('#jump');
@@ -226,7 +261,7 @@
     }
 
     function setChapterTip(container) {
-      const imageNum = localStorage.getItem('imageNum');
+      const imageNum = localStorage.getItem(`${comicName}/num`);
       const chapterNum = document.querySelector('#chapterNum');
 
       const allNum = document.querySelector('#allNum');
@@ -264,12 +299,12 @@
     function init() {
       const container = document.querySelector('#imgList');
       container.innerHTML = '';
-      localStorage.setItem('imageNum', '');
+      // localStorage.setItem('imageNum', '');
       setTimeoutMark = null
       const storedChapter = localStorage.getItem(comicName)
       // 如果是同一个章节，那么就不重置 imageNum ，也就是接着上次记录看
       if (storedChapter != chapter) {
-        localStorage.setItem('imageNum', '');
+        localStorage.setItem(`${comicName}/num`, '');
       } else {
         // const imageNum = localStorage.getItem('imageNum');
         // localStorage.setItem('imageNum', imageNum-1);

@@ -44,17 +44,24 @@
     .back {
       position: absolute;
       left: 10px;
-      top: 10px;
+      top: 15px;
       z-index: 10;
       width: 30px;
       height: 30px;
       background-image: url(data:image/svg+xml;base64,PHN2ZyBkYXRhLW5hbWU9IuWbvuWxgiAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHBhdGggZD0iTTUuNTggMy40MmEuNTkuNTkgMCAwMS44NC0uODRsNSA1YS41OC41OCAwIDAxMCAuODRsLTUgNWEuNTkuNTkgMCAwMS0uODQtLjg0TDEwLjE1IDh6IiBmaWxsPSIjOTk5Ii8+PC9zdmc+);
       transform: rotate(180deg)
     }
+    .comic-name {
+      height: 60px;
+      line-height: 60px;
+      white-space: nowrap;
+      font-size: 24px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h2 class="tc" id="name">name</h2>
+  <div class="tc comic-name" id="name">name</div>
   <a href="./index.html" class="back"></a>
   <div id='viewHistory' class="df" style="padding-left: 10px;align-items: center"></div>
   <h3>连载</h3>
@@ -134,7 +141,7 @@
       const typeEndIndex = viewHistory.indexOf('&')
       const numEndIndex = viewHistory.lastIndexOf('=')
       const showText = viewHistory.substring(5,typeEndIndex) + '-'+viewHistory.substring(numEndIndex+1)
-      document.querySelector('#viewHistory').innerHTML = `<div>上次看到:</div> <a class="list-item reset" href='./detail.html?${viewHistory}'>${showText}</a>`;
+      document.querySelector('#viewHistory').innerHTML = `<div>上次看到:</div> <a class="list-item reset" href='./detail.html?name=${comicName}&${viewHistory}'>${showText}</a>`;
       getChapterList()
 
     }
