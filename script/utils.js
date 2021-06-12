@@ -5,7 +5,8 @@ const http = require('http');
 const defaultHttpsOptions = {
   method: 'GET',
   timeout: 1 * 60 * 1000,
-  encoding:'utf8'
+  encoding:'utf8',
+  'Accept-Encoding':'utf-8'
 };
 
 function requestPromise(url, options={}) {

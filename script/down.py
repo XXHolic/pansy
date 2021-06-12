@@ -11,13 +11,12 @@ retryReq.mount('http://', HTTPAdapter(max_retries=2))
 retryReq.mount('https://', HTTPAdapter(max_retries=2))
 
 
-baseRoot= '../comic/demo/'
+baseRoot= '../../static/zhouShuHuiZhan/'
 # baseRoot= '../comic//'
 # 有 4 个值 serial short single appendix
 chapterFile = baseRoot + 'serial.json'
 imagesJsonFileName = 'images.json'
 emptyJsonFileName = 'empty.json'
-totalJsonFileName = 'total.json'
 
 # 下载图片
 def down_img(localFold,data):
@@ -83,9 +82,9 @@ def downAllImages(type):
     if (type == 2):
       chapterList = fileData['list']
     chapterNum = len(chapterList)
-    startDire = 1
+    startDire = 54
     # while startDire <= chapterNum:
-    while startDire <= 1:
+    while startDire <= 54:
       fold_name = urllib.parse.unquote(str(startDire)) + '/'
       if (type == 2):
         fold_name = classify + '/' + fold_name

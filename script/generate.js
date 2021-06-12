@@ -9,7 +9,7 @@ const {
   removeRepeat,
 } = require('./utils')
 const {sortChapterLink} = require('./helper')
-const comicMark = 'jojo8'
+const comicMark = 'zhouShuHuiZhan'
 const baseRoot = `../../static/${comicMark}/`
 const chapterFile = baseRoot + 'chapter.json' // 包含总的信息，也方便获取解析
 const listFile = '../../static/list.json' // 所有漫画名称信息
@@ -17,7 +17,7 @@ const defaultPrefix = 'https://github.com/XXHolic/demo-images/' // 给的假定�
 const imagesJsonFileName = 'images.json'
 
 // 有 4 个值 serial short single appendix
-const globalClassify = 'single'
+const globalClassify = 'serial'
 let dealPath = `${baseRoot}${globalClassify}`
 let dealFile = [11,12,13,14,15,16,17,18,19,20,21,22,23] // 需要提取的文件夹
 
@@ -116,7 +116,7 @@ function generateChapter() {
   for (let index = 1; index <= directoryNum; index++) {
   // for (let index = 1; index <= 1; index++) {
     const temp = {
-      name: `第 ${index} 卷`,
+      name: `${index}`,
       link: '',
       order: index
     }
@@ -148,7 +148,7 @@ function generateImages() {
     let listData = {
       list:sortAllImages,
       total:sortAllImages.length,
-      title:`第 ${ele} 卷`
+      title:`${ele}`
     }
 
     writeLocalFile(`${dealPath}/${imagePath}`,JSON.stringify(listData))
@@ -180,7 +180,7 @@ function generateComicList() {
   writeLocalFile(listFile,JSON.stringify(obj))
 }
 
-// generateChapter()
+generateChapter()
 // generateImages()
 // generateComicList()
 

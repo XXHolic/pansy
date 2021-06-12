@@ -2,7 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 // 有 4 个值 serial short single appendix
-var dealPath = '../../static/jojo8/single'
+var dealPath = '../../static/zhouShuHuiZhan/serial'
 var dealFile = [] // 测试 需要重命名的文件夹
 // var dealFile = [11,12,13,14,15,16,17,18,19,20,21,22,23] // 需要重命名的文件夹
 var fileArr = []; // 存储目标文件路径
@@ -28,7 +28,7 @@ function readDirFile(dir) {
     if (info.isDirectory() && !excludeDir.test(file)) {
       readDirFile(pathName);
     } else {
-      if ([".json"].includes(path.extname(file))) {
+      if ([".json",".md"].includes(path.extname(file))) {
         fileArr.push(pathName);
       }
     }
@@ -70,8 +70,14 @@ function clearFile() {
 
   // console.log(fileArr)
   fileArr.map(ele => {
-    fs.unlinkSync(ele)
-    console.log(`clear ${ele} done`)
+    const strSplit = ele.split(path.sep)
+    const lastEle = strSplit[strSplit.length-2]
+    if (Number(lastEle) > 53) {
+      fs.unlinkSync(ele)
+      console.log(`clear ${ele} done`)
+    }
+    // fs.unlinkSync(ele)
+    // console.log(`clear ${ele} done`)
   })
   console.log('clear all file done')
 }

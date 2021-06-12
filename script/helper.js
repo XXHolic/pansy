@@ -10,11 +10,12 @@ const {
 } = require('./utils')
 
 const base64 = require('./base64')
+const base64V2 = require('./base64-v2')
 
 const getChapterContainerReg = (type) => {
   switch(type){
     case 1:
-    return /<div class="chapter-list cf mt10"+.*?>([\s\S]*?)<\/div*?>/g
+    return /<div class="plist pnormal"+.*?>([\s\S]*?)<\/div*?>/g
     case 2:
     // return /<ul id="chapter-list-1"+.*?>([\s\S]*?)<\/ul*?>/g
     return /<ol class="links-of-books num_div"+.*?>([\s\S]*?)<\/ol*?>/g
@@ -30,7 +31,7 @@ const getChapterReg = (type,comicMark) => {
     case 2:
     return new RegExp('<a href="\/manhua\/'+comicMark+'\/+.*?\/a>','g')
     case 3:
-    return new RegExp('<a class="" href="\/+.*?>([\\s\\S]*?)<\/a>','g')
+    return new RegExp('<a href="\/+.*?>([\\s\\S]*?)<\/a>','g')
     case 4:
     return new RegExp('<a href="\/'+comicMark+'\/+.*?\/a>','g')
   }
@@ -58,13 +59,14 @@ const formatChapter = (data,type) => {
   }
   if (type === 2) {
     // <a href="/m132667/" class="detail-list-form-item" title="" target="_blank">第106话<span>（19P）</span></a>
-    const matchResult = data.match(/\/m+.*?\//g)
+    // const matchResult = data.match(/\/m+.*?\//g)
+    const matchResult = data.match(/\/+.*?.html/g)
     const page = matchResult[0]
     const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
     const value1 = data.replace(pattern,'')
-    const value2 = value1.replace(/\s+/g,'')
+    // const value2 = value1.replace(/\s+/g,'')
     chapterLink = {
-      name: value2,
+      name: value1,
       link: page
     }
   }
@@ -144,6 +146,9 @@ const sortChapterLink = (data,type) => {
       return aNum - bNum
     })
   }
+  if(type === 3) {
+    return data
+  }
 }
 
 // 如果本地原本就有数据，则要进行合并，而不是全覆盖
@@ -157,45 +162,46 @@ const classifyData = (data,type,localData) => {
   }
   for (let index = 0; index < data.length; index++) {
     const element = data[index];
-    if (element.indexOf('短篇')>-1 || element.indexOf('番外')>-1||element.indexOf('同人')>-1 || element.indexOf('小四格')>-1) {
+    if (element.indexOf('角色书')>-1 || element.indexOf('番外')>-1) {
+    // if (element.indexOf('短篇')>-1 || element.indexOf('番外')>-1||element.indexOf('角色书')>-1 || element.indexOf('小四格')>-1) {
       const formatData = formatChapter(element,type)
       intiData.short.unshift(formatData)
       continue;
     }
-    if (element.indexOf('before')>-1) {
+    if (element.indexOf('附录')>-1) {
       const formatData = formatChapter(element,type)
       intiData.appendix.unshift(formatData)
       continue;
     }
-    // if (element.indexOf('单行')>-1) {
+    if (element.indexOf('单行')>-1) {
       const formatData = formatChapter(element,type)
       intiData.single.unshift(formatData)
-      // continue;
-    // }
+      continue;
+    }
 
     // if (element.indexOf('before')>-1) {
     //   continue;
     // }
 
-    // const formatData = formatChapter(element,type)
-    // intiData.serial.unshift(formatData)
+    const formatData = formatChapter(element,type)
+    intiData.serial.unshift(formatData)
 
   }
 
   // 有的网站并不是按照正确顺序排列，所以还是排序一下
   if (localData && localData.serial) {
     // 可以根据情况覆盖不同的部分
-    // localData.serial = sortChapterLink(intiData.serial,2)
-    // localData.short = sortChapterLink(intiData.short,2)
-    // localData.single = sortChapterLink(intiData.single,2)
-    localData.appendix = sortChapterLink(intiData.appendix,2)
+    localData.serial = sortChapterLink(intiData.serial,3)
+    localData.short = sortChapterLink(intiData.short,3)
+    // localData.single = sortChapterLink(intiData.single,3)
+    localData.appendix = sortChapterLink(intiData.appendix,3)
     return localData
   }
 
-  intiData.serial = sortChapterLink(intiData.serial,2)
-  intiData.short = sortChapterLink(intiData.short,2)
-  intiData.single = sortChapterLink(intiData.single,2)
-  intiData.appendix = sortChapterLink(intiData.appendix,2)
+  intiData.serial = sortChapterLink(intiData.serial,3)
+  intiData.short = sortChapterLink(intiData.short,3)
+  intiData.single = sortChapterLink(intiData.single,3)
+  intiData.appendix = sortChapterLink(intiData.appendix,3)
 
   return intiData
 
@@ -372,6 +378,49 @@ const getChapterImageData = (pageData,type,url) => {
     data.total = totalNum
     data.title = title
   }
+  if (type === 6) {
+    // // var picTree =
+    const reg = /var picTree =([\s\S]*?)<\/script>/g
+    const matchResult = regMatch(pageData,reg)
+    const chapterReg = /'+.*?'/g
+    const chapterStr = regMatch(matchResult,chapterReg)
+    const mainStr = chapterStr.substring(1,chapterStr.length-1)
+    const reg2 = /var currentChapterid+.*?;/g
+    const matchResult2 = regMatch(pageData,reg2)
+    const resultSplit = matchResult2.split('\'')
+    const id = resultSplit[1]
+    // console.log('---resultSplit---')
+    // console.log(resultSplit)
+    const chapterArr = base64V2.getUrlpics(mainStr,id)
+
+    // const divReg = /<div class="d-none vg-r-data"+.*?>([\s\S]*?)<\/div*?>/g
+    // const divStr = regMatch(pageData,divReg)
+    // const totalReg = /data-total="\d{1,4}"/g
+    // const totalStr = regMatch(divStr,totalReg,2)
+    const totalNum = chapterArr.length
+
+    // const hostReg = /data-host="+.*?"/g
+    // const hostStr = regMatch(divStr,hostReg,2)
+
+    // const preReg = /data-img_pre="+.*?"/g
+    // const preStr = regMatch(divStr,preReg,2)
+
+    // const imgPre = `${hostStr}${preStr}`
+
+    const listData = chapterArr
+
+
+
+    // const titleReg = /<title>+.*?<\/title>/g
+    // const titleStr = regMatch(pageData,titleReg)
+    // const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
+    // const title = titleStr.replace(pattern,'')
+
+    data.list = listData
+    data.total = totalNum
+    data.title = ''
+  }
+
   // console.log('data',data)
 
   return data;

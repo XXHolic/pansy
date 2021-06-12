@@ -6,6 +6,7 @@ const {
   requestPromise,
   readJsonFile,
   removeRepeat,
+  readFileText
 } = require('./utils')
 const {
   getChapterContainerReg,
@@ -20,11 +21,12 @@ const {
   getImageHeader,
 } = require('./helper')
 
-const baseRoot = '../comic/demo/'
-const comicMark = 'demo'
+const baseRoot = '../../static/zhouShuHuiZhan/'
+const comicMark = 'zhouShuHuiZhan'
 // const chapterReqUrl = "https://www.manhuadb.com/manhua/" + comicMark + '/'
-const site = 'https://www.ykmh.com'
-const chapterReqUrl = site + "/manhua/" + comicMark + '/'
+const site = 'https://www.laimanhua.com'
+// const chapterReqUrl = site + "/manhua/" + comicMark + '/'
+const chapterReqUrl = 'https://www.laimanhua.com/kanmanhua/33352/'
 const chapterFile = baseRoot + 'chapter.json' // 包含总的信息，也方便获取解析
 const imagesJsonFileName = 'images.json'
 const titleFileName = 'title.md'
@@ -32,7 +34,7 @@ const emptyJsonFileName = 'empty.json'
 const singleChapterFileName = 'chapter.json' // 这是适用于每张图片源都要单独去请求的情况
 const baseEmptyJsonFile = baseRoot+'empty.json'
 const baseFailJsonFile = baseRoot+'down-fail.json'
-const globalClassify = 'appendix' // 有 4 个值 serial short single appendix
+const globalClassify = 'serial' // 有 4 个值 serial short single appendix
 // 不同的部分可能来自不同的源，所以单独分开
 const serialFile = baseRoot + 'serial.json'
 const shortFile = baseRoot + 'short.json'
@@ -44,9 +46,11 @@ async function getChaptersData() {
 
   const chapterFileObj = readJsonFile(chapterFile)
 
-  const result = await requestPromise(`${chapterReqUrl}`,{reqType:'https'})
+  // 添加支持读取本地文件
+  const result = readFileText('../public/index.html')
+  // const result = await requestPromise(`${chapterReqUrl}`,{reqType:'https'})
 
-  const linkReg = getChapterContainerReg(2)
+  const linkReg = getChapterContainerReg(1)
   const matchResult = result.match(linkReg)
   // console.log('---matchResult---')
   // console.log(matchResult)
@@ -63,7 +67,7 @@ async function getChaptersData() {
 
     if (linkMatch && linkMatch.length) {
       // 先按照 正式连载,短篇,卷附录，单行本, 进行分类，然后再分别放入数组
-      const allLink = classifyData(linkMatch,1,chapterFileObj)
+      const allLink = classifyData(linkMatch,2,chapterFileObj)
     // console.log('---allLink---')
     // console.log(allLink)
       // 有的情况可以根据数字大小排序
@@ -71,8 +75,8 @@ async function getChaptersData() {
       // 综合的数据
       writeLocalFile(chapterFile,JSON.stringify(allLink))
       // 可以根据情况写入不同部分的文件
-      // writeLocalFile(serialFile,JSON.stringify({list:allLink.serial}))
-      // writeLocalFile(shortFile,JSON.stringify({list:allLink.short}))
+      writeLocalFile(serialFile,JSON.stringify({list:allLink.serial}))
+      writeLocalFile(shortFile,JSON.stringify({list:allLink.short}))
       // writeLocalFile(singleFile,JSON.stringify({list:allLink.single}))
       writeLocalFile(appendixFile,JSON.stringify({list:allLink.appendix}))
       console.log('get all chapter links success')
@@ -89,7 +93,7 @@ async function getImagesData() {
   // 有就用
   // globalExpand()
   // 四个 serialFile shortFile singleFile appendixFile
-  const filePath = appendixFile
+  const filePath = serialFile
   const fileData = readJsonFile(filePath)
 
 
@@ -100,9 +104,9 @@ async function getImagesData() {
   createFold(`${baseRoot}${classify}`)
   const chapterList = fileData.list
   const chapterNum = chapterList.length
-  let startDire = 1 // 跟本地的文件夹命名顺序一致，从 1 开始
+  let startDire = 55 // 跟本地的文件夹命名顺序一致，从 1 开始
   while (startDire <= chapterNum) {
-  // while (startDire <= 1) { // 测试用
+  // while (startDire <= 54) { // 测试用
     let startDownChapterObj = chapterList[startDire-1]
     const startDownChapter = startDownChapterObj.link
     const preBaseRoot = `${baseRoot}${classify}/`
@@ -131,7 +135,8 @@ async function getImagesData() {
       continue;
     }
 
-    imageData = getChapterImageData(res,4,url)
+    imageData = getChapterImageData(res,6,url)
+    imageData.title = startDownChapterObj.name // 有些网址是 gb 编码，就不用那个了
     if (!imageData.total) {
       return;
     }
