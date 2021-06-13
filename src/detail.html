@@ -225,7 +225,7 @@
           alert('无下一话')
           return;
         }
-        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}`
+        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}&totalChapterNum=${totalChapterNum}`
       })
       const nextChapterVisible = document.querySelector('#nextChapterVisible');
       nextChapterVisible.addEventListener('click',function(){
@@ -236,7 +236,7 @@
           alert('无下一话')
           return;
         }
-        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}`
+        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}&totalChapterNum=${totalChapterNum}`
       })
       const preChapterVisible = document.querySelector('#preChapterVisible');
       preChapterVisible.addEventListener('click',function(){
@@ -246,7 +246,8 @@
           alert('无前一话')
           return;
         }
-        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${preNum}`
+        const totalChapterNum = getQueryStringArgs('totalChapterNum');
+        window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${preNum}&totalChapterNum=${totalChapterNum}`
       })
 
       const jump = document.querySelector('#jump');
