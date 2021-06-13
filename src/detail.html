@@ -152,7 +152,7 @@
       const imageNum = localStorage.getItem(`${comicName}/num`);
       let num = imageNum ? imageNum : 1;
       if (num > totalImages.length) {
-        alert('已看完最后一页了')
+        console.log('已看完最后一页了')
         return;
       }
       if (numArgs) {
