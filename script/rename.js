@@ -2,7 +2,8 @@
 var fs = require("fs");
 var path = require("path");
 // 有 4 个值 serial short single appendix
-var dealPath = '../comic/yiShouMoDu/appendix'
+var dealPath = '../../static/zhiBuMieDeNi/serial'
+// var dealPath = './test'
 var dealFile = [1] // 测试 需要重命名的文件夹
 // var dealFile = [11,12,13,14,15,16,17,18,19,20,21,22,23] // 需要重命名的文件夹
 var fileArr = []; // 存储目标文件路径
@@ -93,27 +94,39 @@ function renameFile() {
   console.log('rename file done')
 }
 
+
+function getDirectoryNewName(data,order,type) {
+  let newNamePath = data
+  if (type == 1) {
+    let eleSplitFirst =  data.split('\\')
+    const posFirst = eleSplitFirst.length-1
+    const eleSplitEle = eleSplitFirst[posFirst]
+    let eleSplit =  eleSplitEle.split('.')
+    const pos = eleSplit.length-1
+    const newName = String(Number(eleSplit[pos]))
+    eleSplitFirst[posFirst] = newName
+    newNamePath = eleSplitFirst.join('\\')
+  }
+  if (type == 2) {
+    let strSplit =  data.split('\\')
+    const lastIndex = strSplit.length-1
+    // const oldName = strSplit[lastIndex]
+    strSplit[lastIndex] = order + 1
+    newNamePath = strSplit.join('\\')
+  }
+  return newNamePath
+}
+
 function renameDirectory() {
   readDir(dealPath)
   // console.log(fileArr)
-  fileArr.map(ele => {
-    const isNeed = ele.lastIndexOf('.') > 1
-    if (isNeed) {
-      let eleSplitFirst =  ele.split('\\')
-      const posFirst = eleSplitFirst.length-1
-      const eleSplitEle = eleSplitFirst[posFirst]
-      let eleSplit =  eleSplitEle.split('.')
-      const pos = eleSplit.length-1
-      const newName = String(Number(eleSplit[pos]))
-      eleSplitFirst[posFirst] = newName
-      const newNamePath = eleSplitFirst.join('\\')
-
-      fs.renameSync(ele, newNamePath)
-    }
+  fileArr.map((ele,index) => {
+      let newName = getDirectoryNewName(ele,index,2)
+      fs.renameSync(ele, newName)
   })
 
   console.log('rename Directory done')
 }
 
-renameFile()
-// renameDirectory()
+// renameFile()
+renameDirectory()
