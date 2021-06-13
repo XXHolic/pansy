@@ -84,6 +84,12 @@
   <script>
     const comicName = getQueryStringArgs('name');
     document.querySelector('#name').innerHTML = comicName
+    const textMap = {
+      serial: '连载',
+      short: '短篇',
+      single: '单行本',
+      appendix: '附录',
+    }
 
     function getQueryStringArgs(params) {
       var qs = (location.search.length > 0 ? location.search.substring(1) : ""),
@@ -111,7 +117,7 @@
       for (let index = 1; index <= dataLen; index++) {
         const ele = data[index-1]
         showText = ele.name
-        let liItem = `<li><a class="list-item" title=${showText} href='./detail.html?name=${comicName}&type=${type}&chapter=${index}'>${showText}</a></li>`;
+        let liItem = `<li><a class="list-item" title=${showText} href='./detail.html?name=${comicName}&type=${type}&chapter=${index}&totalChapterNum=${dataLen}'>${showText}</a></li>`;
         htmStr = htmStr + liItem;
       }
       return htmStr
@@ -136,11 +142,21 @@
       });
     }
 
+
     function init() {
-      const viewHistory = localStorage.getItem(comicName) || 'type=serial&chapter=1';
-      const typeEndIndex = viewHistory.indexOf('&')
+      const viewHistory = localStorage.getItem(comicName) || 'type=serial&chapter=1&totalChapterNum=10000';
+      const historySplit = viewHistory.split('&')
+      console.info('historySplit',historySplit)
+
+      const typeArr = historySplit[0]
+      const typeArrSplit = typeArr.split('=')
+      const typeText = typeArrSplit[1]
+
+      const chapterArr = historySplit[1]
+      const chapterArrSplit = chapterArr.split('=')
+      const chapterText = chapterArrSplit[1]
       const numEndIndex = viewHistory.lastIndexOf('=')
-      const showText = viewHistory.substring(5,typeEndIndex) + '-'+viewHistory.substring(numEndIndex+1)
+      const showText = textMap[typeText] + '-'+chapterText
       document.querySelector('#viewHistory').innerHTML = `<div>上次看到:</div> <a class="list-item reset" href='./detail.html?name=${comicName}&${viewHistory}'>${showText}</a>`;
       getChapterList()
 

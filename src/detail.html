@@ -152,6 +152,7 @@
       const imageNum = localStorage.getItem(`${comicName}/num`);
       let num = imageNum ? imageNum : 1;
       if (num > totalImages.length) {
+        alert('已看完最后一页了')
         return;
       }
       if (numArgs) {
@@ -218,13 +219,23 @@
       const nextChapter = document.querySelector('#nextChapter');
       nextChapter.addEventListener('click',function(){
         const chapter = getQueryStringArgs('chapter');
+        const totalChapterNum = getQueryStringArgs('totalChapterNum');
         const nextNum = Number(chapter) + 1;
+        if (nextNum > Number(totalChapterNum)) {
+          alert('无下一话')
+          return;
+        }
         window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}`
       })
       const nextChapterVisible = document.querySelector('#nextChapterVisible');
       nextChapterVisible.addEventListener('click',function(){
         const chapter = getQueryStringArgs('chapter');
         const nextNum = Number(chapter) + 1;
+        const totalChapterNum = getQueryStringArgs('totalChapterNum');
+        if (nextNum > Number(totalChapterNum)) {
+          alert('无下一话')
+          return;
+        }
         window.location.href = `./detail.html?name=${comicOnlyName}&type=${comicType}&chapter=${nextNum}`
       })
       const preChapterVisible = document.querySelector('#preChapterVisible');
@@ -312,7 +323,8 @@
       }
       // 记录看到的章节历史
       localStorage.setItem(comicName,chapter);
-      localStorage.setItem(comicOnlyName,`type=${comicType}&chapter=${chapter}`);
+      const totalChapterNum = getQueryStringArgs('totalChapterNum');
+      localStorage.setItem(comicOnlyName,`type=${comicType}&chapter=${chapter}&totalChapterNum=${totalChapterNum}`);
 
       const deviceType = getDeviceType();
       if (deviceType == 'phone') {
