@@ -2,7 +2,7 @@
 var fs = require("fs");
 var path = require("path");
 // 有 4 个值 serial short single appendix
-var dealPath = '../../static/zhiBuMieDeNi/serial'
+var dealPath = '../../static/zhouShuHuiZhan/serial'
 // var dealPath = './test'
 var dealFile = [] // 测试 需要重命名的文件夹
 // var dealFile = [11,12,13,14,15,16,17,18,19,20,21,22,23] // 需要重命名的文件夹
@@ -117,6 +117,8 @@ function renameFile() {
 
 function getDirectoryNewName(data,order,type) {
   let newNamePath = data
+  let hasChange = false;
+
   if (type == 1) {
     let eleSplitFirst =  data.split('\\')
     const posFirst = eleSplitFirst.length-1
@@ -128,21 +130,29 @@ function getDirectoryNewName(data,order,type) {
     newNamePath = eleSplitFirst.join('\\')
   }
   if (type == 2) {
-    let strSplit =  data.split('\\')
-    const lastIndex = strSplit.length-1
-    // const oldName = strSplit[lastIndex]
-    strSplit[lastIndex] = order + 1
-    newNamePath = strSplit.join('\\')
+    if (data.indexOf('动物') > -1) {
+      hasChange = true
+      const matchArr = data.match(/\d{1,6}/g)
+      const newName = matchArr[0]
+      let strSplit =  data.split('\\')
+      const lastIndex = strSplit.length-1
+      // const oldName = strSplit[lastIndex]
+      strSplit[lastIndex] = newName
+      newNamePath = strSplit.join('\\')
+    }
+
   }
-  return newNamePath
+  return {newName:newNamePath,hasChange}
 }
 
 function renameDirectory() {
   readDir(dealPath)
-  console.log(fileArr)
+  // console.log(fileArr)
   fileArr.map((ele,index) => {
-      let newName = getDirectoryNewName(ele,index,2)
-      fs.renameSync(ele, newName)
+      let {newName,hasChange} = getDirectoryNewName(ele,index,2)
+      if (hasChange) {
+        fs.renameSync(ele, newName)
+      }
   })
 
   console.log('rename Directory done')
