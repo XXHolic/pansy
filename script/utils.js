@@ -1,12 +1,15 @@
 const fs = require('fs');
 const https = require('https');
 const http = require('http');
+const zlib = require('zlib');
 
 const defaultHttpsOptions = {
   method: 'GET',
   timeout: 1 * 60 * 1000,
   encoding:'utf8',
-  'Accept-Encoding':'utf-8'
+  headers: {
+    'Content-Type': 'text/html',
+  }
 };
 
 function requestPromise(url, options={}) {
@@ -33,13 +36,23 @@ function requestPromise(url, options={}) {
         res.resume();
         return;
       }
+      let output;
+      if (res.headers['content-encoding'] === 'gzip') {
+        const gzip = zlib.createGunzip();
+        res.pipe(gzip)
+        output = gzip
+      }
 
-      res.setEncoding(encoding);
+      if (res.headers['content-encoding'] === 'utf-8') {
+        output = res
+      }
+
       let backData = '';
-      res.on('data', (data) => {
+      output.on('data', (data) => {
+        data = data.toString('utf-8')
         backData += data;
       });
-      res.on('end', () => {
+      output.on('end', () => {
         // console.log(backData)
         resolve(backData)
       })

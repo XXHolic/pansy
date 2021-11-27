@@ -31,7 +31,7 @@ const getChapterReg = (type,comicMark) => {
     case 2:
     return new RegExp('<a href="\/manhua\/'+comicMark+'\/+.*?\/a>','g')
     case 3:
-    return new RegExp('<a href="\/+.*?>([\\s\\S]*?)<\/a>','g')
+    return new RegExp('<a +.*?>([\\s\\S]*?)<\/a>','g')
     case 4:
     return new RegExp('<a href="\/'+comicMark+'\/+.*?\/a>','g')
   }
@@ -184,7 +184,7 @@ const classifyData = (data,type,localData) => {
     // }
 
     const formatData = formatChapter(element,type)
-    intiData.serial.unshift(formatData)
+    intiData.serial.push(formatData)
 
   }
 
