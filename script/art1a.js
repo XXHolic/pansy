@@ -1,10 +1,15 @@
 // 针对 漫画DB 的特定解析
+const fs = require('fs');
+const path = require("path");
+
 const {
   sortChapterLink,
 } = require('./helper')
 const {
   regMatch,
 } = require('./utils')
+const base64 = require('./base64')
+const base64V2 = require('./base64-v2')
 
 const getChapterImageData = (pageData, url) => {
   let data = {
@@ -61,19 +66,21 @@ const getChapterImageData = (pageData, url) => {
 
 const formatChapter = (data) => {
     // <a class="" href="/manhua/420/413_4650.html" title="[异能者][山本英夫][文传][C.C]Vol_01">1</a>
+    let chapterLink = ''
     const linkMatchResult = data.match(/\/+.*?.html/g)
     const link = linkMatchResult[0]
-    const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
-    const value = data.replace(pattern,'')
-    const order = value?Number(value):0
+    // const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
+    // const value = data.replace(pattern,'')
+    // const order = value?Number(value):0
     const nameMatchResult = data.match(/title=+.*?."/g)
     const nameStr = nameMatchResult[0]
     const name = nameStr.substring(7,nameStr.length-1)
     chapterLink = {
       name: name,
       link: link,
-      order: order
+      // order: order
     }
+    return chapterLink
 }
 
 // 如果本地原本就有数据，则要进行合并，而不是全覆盖
@@ -132,7 +139,49 @@ const classifyData = (data,localData) => {
 
 }
 
+const getCover = (data) => {
+  const reg = /<td class="comic-cover"+.*?>([\s\S]*?)<\/td*?>/g
+  const matchResult = data.match(reg)
+  let url = ''
+  if (matchResult && matchResult.length) {
+    let matchData = matchResult[0]
+    const srcMatchResult = matchData.match(/src=+.*?."/g)
+    const srcStr = srcMatchResult[0]
+    url = srcStr.substring(5,srcStr.length-1)
+  }
+
+  return url
+}
+
+// 只读文件，不读文件夹
+function readFileName(dir) {
+  var exist = fs.existsSync(dir);
+  // console.log(dir)
+  // 排除不需要遍历的文件夹或文件
+  var excludeDir = /cover/;
+  if (!exist) {
+    console.error("目录路径不存在");
+    return;
+  }
+  var pa = fs.readdirSync(dir);
+  // console.log(pa)
+
+  let fileArr = []
+  for (let index = 0; index < pa.length; index++) {
+    let file = pa[index];
+    var pathName = path.join(dir, file);
+    var info = fs.statSync(pathName);
+    if (!info.isDirectory() && excludeDir.test(file)) {
+      const name = path.basename(pathName)
+      fileArr.push(name);
+    }
+  }
+  return fileArr
+}
+
 module.exports = {
   getChapterImageData,
   classifyData,
+  getCover,
+  readFileName
 }

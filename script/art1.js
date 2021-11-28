@@ -8,21 +8,25 @@ const {
   writeLocalFile,
   requestPromise,
   readJsonFile,
-  readFileText
+  readFileText,
+  readDir
 } = require('./utils')
 const {
   getChapterContainerReg,
   getChapterReg,
+  getImageType,
 } = require('./helper')
 const {
+  getCover,
   classifyData,
   getChapterImageData,
+  readFileName,
 } = require('./art1a')
 
-const localName = 'xxx'
+const localName = 'yiShiJieShiGe'
 const localRoot = '../../static'
 const baseRoot = `${localRoot}/${localName}/`
-const comicMark = '24099'
+const comicMark = '9751'
 const chapterReqUrl = "https://www.manhuadb.com/manhua/" + comicMark + '/'
 const site = 'https://www.manhuadb.com'
 const chapterFile = baseRoot + 'chapter.json' // 包含总的信息，也方便获取解析
@@ -79,6 +83,20 @@ async function getChaptersData() {
 
   }
 
+  const coverUrl = getCover(result)
+  if (coverUrl) {
+    const imagType = getImageType(coverUrl,2)
+    const imagePath = `${baseRoot}cover${imagType}`
+    if (fs.existsSync(imagePath)) {
+      console.log(`image exist ${imagePath}`)
+      return;
+    }
+    const res = await requestPromise(coverUrl,{encoding:'binary'}).catch((e) =>{
+      console.log(`down fail ${imagePath}`)
+    })
+    await writeLocalFile(imagePath,res,'binary')
+    console.log(`down success ${imagePath}`)
+  }
 
 }
 
@@ -143,15 +161,16 @@ async function getImagesData() {
 }
 
 function initFold() {
-  const name = 'xx'
   const viewFold = '../../view'
-  const comicFold = `${localRoot}/${name}`
+  const comicFold = `${localRoot}/${localName}`
   createFold(localRoot)
   createFold(viewFold)
   createFold(comicFold)
 }
 
 function generateComicList() {
+  const listFile = '../../static/list.json' // 所有漫画名称信息
+
   const allPath = readDir(localRoot)
   let comicNameArr = []
   const len = allPath.length
@@ -180,4 +199,4 @@ function generateComicList() {
 // 第二步获取每个章节所有对应图片
 // getImagesData()
 // 下载完图片后生成用于页面展示的信息
-// generateComicList()
+generateComicList()

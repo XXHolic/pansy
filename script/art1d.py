@@ -11,7 +11,7 @@ retryReq.mount('http://', HTTPAdapter(max_retries=2))
 retryReq.mount('https://', HTTPAdapter(max_retries=2))
 
 
-baseRoot= '../../static/8/'
+baseRoot= '../../static/yiShiJieShiGe/'
 # baseRoot= '../comic//'
 # 有 4 个值 serial short single appendix
 chapterFile = baseRoot + 'serial.json'

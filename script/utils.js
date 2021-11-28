@@ -2,14 +2,13 @@ const fs = require('fs');
 const https = require('https');
 const http = require('http');
 const zlib = require('zlib');
+const path = require("path");
 
 const defaultHttpsOptions = {
   method: 'GET',
   timeout: 1 * 60 * 1000,
   encoding:'utf8',
-  headers: {
-    'Content-Type': 'text/html',
-  }
+  headers: {}
 };
 
 function requestPromise(url, options={}) {
@@ -41,15 +40,14 @@ function requestPromise(url, options={}) {
         const gzip = zlib.createGunzip();
         res.pipe(gzip)
         output = gzip
-      }
-
-      if (res.headers['content-encoding'] === 'utf-8') {
+      } else {
+        res.setEncoding(encoding)
         output = res
       }
 
       let backData = '';
       output.on('data', (data) => {
-        data = data.toString('utf-8')
+        // data = data.toString('utf-8')
         backData += data;
       });
       output.on('end', () => {
@@ -123,6 +121,31 @@ function regMatch(data,reg,type=1) {
   }
 }
 
+// 只读文件夹，不读文件
+function readDir(dir) {
+  var exist = fs.existsSync(dir);
+  // console.log(dir)
+  // 排除不需要遍历的文件夹或文件
+  var excludeDir = /^(\.|node_module)/;
+  if (!exist) {
+    console.error("目录路径不存在");
+    return;
+  }
+  var pa = fs.readdirSync(dir);
+  // console.log(pa)
+
+  let fileArr = []
+  for (let index = 0; index < pa.length; index++) {
+    let file = pa[index];
+    var pathName = path.join(dir, file);
+    var info = fs.statSync(pathName);
+    if (info.isDirectory() && !excludeDir.test(file)) {
+      fileArr.push(file);
+    }
+  }
+  return fileArr
+}
+
 
 module.exports = {
   requestPromise,
@@ -132,4 +155,5 @@ module.exports = {
   removeRepeat,
   regMatch,
   readFileText,
+  readDir
 }
