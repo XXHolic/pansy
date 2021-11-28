@@ -1,5 +1,5 @@
 
-// 不同的网站，解析的正则不一样，在这里统一区分
+// 不同的网站，解析的正则不一样，在这里统一区分，加了备注指定网站的就不要动了
 
 const {
   createFold,
@@ -16,8 +16,7 @@ const getChapterContainerReg = (type) => {
   switch(type){
     case 1:
     return /<div class="plist pnormal"+.*?>([\s\S]*?)<\/div*?>/g
-    case 2:
-    // return /<ul id="chapter-list-1"+.*?>([\s\S]*?)<\/ul*?>/g
+    case 2: // 适用于[漫画DB]
     return /<ol class="links-of-books num_div"+.*?>([\s\S]*?)<\/ol*?>/g
     case 3:
     return /<div class="detail-list-form-con"+.*?>([\s\S]*?)<\/div*?>/g
@@ -30,7 +29,7 @@ const getChapterReg = (type,comicMark) => {
     return new RegExp('href="\/manhua\/'+comicMark+'\/+.*?html','g')
     case 2:
     return new RegExp('<a href="\/manhua\/'+comicMark+'\/+.*?\/a>','g')
-    case 3:
+    case 3: // 适用于[漫画DB]
     return new RegExp('<a +.*?>([\\s\\S]*?)<\/a>','g')
     case 4:
     return new RegExp('<a href="\/'+comicMark+'\/+.*?\/a>','g')
@@ -106,22 +105,6 @@ const formatChapter = (data,type) => {
     const srcReg = /"http+.*?"/g
     const imgSrcStr = regMatch(imgStr,srcReg)
     chapterLink = imgSrcStr.substring(1,imgSrcStr.length-1)
-  }
-  if (type === 6) {
-    // <a class="" href="/manhua/420/413_4650.html" title="[异能者][山本英夫][文传][C.C]Vol_01">1</a>
-    const linkMatchResult = data.match(/\/+.*?.html/g)
-    const link = linkMatchResult[0]
-    const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
-    const value = data.replace(pattern,'')
-    const order = value?Number(value):0
-    const nameMatchResult = data.match(/title=+.*?."/g)
-    const nameStr = nameMatchResult[0]
-    const name = nameStr.substring(7,nameStr.length-1)
-    chapterLink = {
-      name: name,
-      link: link,
-      order: order
-    }
   }
 
   return chapterLink
@@ -337,46 +320,7 @@ const getChapterImageData = (pageData,type,url) => {
   }
 
   if (type === 5) {
-    // <script>var img_data =
-    const reg = /<script>var img_data([\s\S]*?)<\/script*?>/g
-    const matchResult = regMatch(pageData,reg)
-    const chapterReg = /'+.*?'/g
-    const chapterStr = regMatch(matchResult,chapterReg)
-    const mainStr = chapterStr.substring(1,chapterStr.length-1)
-    // console.log('---chapterStr---')
-    // console.log(chapterStr)
-    const chapterArr = JSON.parse(base64.decode(mainStr))
 
-    const divReg = /<div class="d-none vg-r-data"+.*?>([\s\S]*?)<\/div*?>/g
-    const divStr = regMatch(pageData,divReg)
-    const totalReg = /data-total="\d{1,4}"/g
-    const totalStr = regMatch(divStr,totalReg,2)
-    const totalNum = Number(totalStr)
-
-    const hostReg = /data-host="+.*?"/g
-    const hostStr = regMatch(divStr,hostReg,2)
-
-    const preReg = /data-img_pre="+.*?"/g
-    const preStr = regMatch(divStr,preReg,2)
-
-    const imgPre = `${hostStr}${preStr}`
-
-    const listData = chapterArr.reduce((acc,cur) => {
-      const url = `${imgPre}${cur.img}`
-      acc.push(url)
-      return acc;
-    },[])
-
-
-
-    const titleReg = /<title>+.*?<\/title>/g
-    const titleStr = regMatch(pageData,titleReg)
-    const pattern = /<(\S*?)[^>]*>.*?|<.*? \/>/g
-    const title = titleStr.replace(pattern,'')
-
-    data.list = listData
-    data.total = totalNum
-    data.title = title
   }
   if (type === 6) {
     // // var picTree =
